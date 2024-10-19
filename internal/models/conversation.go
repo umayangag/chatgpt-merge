@@ -1,6 +1,7 @@
 package models
 
 type Conversation struct {
+	Title   string `json:"title"`
 	Mapping map[string]struct {
 		Message    Message `json:"message"`
 		CreateTime string  `json:"create_time"`
@@ -14,7 +15,7 @@ type Message struct {
 }
 
 type Content struct {
-	Parts interface{} `json:"parts"`
+	Parts []interface{} `json:"parts"` // mostly []string, but can be a map for attachments
 }
 
 type Author struct {
