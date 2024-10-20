@@ -1,32 +1,20 @@
 package writer
 
 import (
-	"chatgpt-merge/internal/mapper"
 	"chatgpt-merge/internal/models"
 	"encoding/csv"
-	"os"
 )
 
-func ToCSV(filename string, snippets []models.Snippet) error {
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+type MapFunc func(s models.Snippet) []string
 
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
+func WriteToCSV(writer *csv.Writer, mapToCSVRow MapFunc, snippets []models.Snippet) error {
 	header := []string{"Timestamp", "Role", "Content"}
 	if err := writer.Write(header); err != nil {
 		return err
 	}
 
 	for _, snippet := range snippets {
-		row, err := mapper.ToCSVRow(snippet)
-		if err != nil {
-			return err
-		}
+		row := mapToCSVRow(snippet)
 		if err := writer.Write(row); err != nil {
 			return err
 		}

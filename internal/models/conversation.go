@@ -1,11 +1,13 @@
 package models
 
 type Conversation struct {
-	Title   string `json:"title"`
-	Mapping map[string]struct {
-		Message    Message `json:"message"`
-		CreateTime string  `json:"create_time"`
-	} `json:"mapping"`
+	Title   string             `json:"title"`
+	Mapping map[string]Mapping `json:"mapping"`
+}
+
+type Mapping struct {
+	Message    Message `json:"message"`
+	CreateTime string  `json:"create_time"`
 }
 
 type Message struct {

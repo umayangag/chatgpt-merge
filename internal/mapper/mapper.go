@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-func ToSnippets(conversations []models.Conversation) []models.Snippet {
-	var snippets []models.Snippet
+func MapToSnippets(conversations []models.Conversation) []models.Snippet {
+	snippets := []models.Snippet{}
 
 	for _, conversation := range conversations {
 		log.Println("Scanning Conversation:", conversation.Title)
@@ -45,8 +45,8 @@ func ToSnippets(conversations []models.Conversation) []models.Snippet {
 	return snippets
 }
 
-func ToCSVRow(snippet models.Snippet) ([]string, error) {
+func MapToCSVRow(snippet models.Snippet) []string {
 	createTimeStr := strconv.FormatFloat(snippet.CreateTime, 'f', -1, 64)
 
-	return []string{createTimeStr, snippet.Role, snippet.Content}, nil
+	return []string{createTimeStr, snippet.Role, snippet.Content}
 }

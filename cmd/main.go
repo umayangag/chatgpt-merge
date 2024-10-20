@@ -4,6 +4,7 @@ import (
 	"chatgpt-merge/internal/mapper"
 	"chatgpt-merge/internal/models"
 	"chatgpt-merge/internal/writer"
+	"encoding/csv"
 	"encoding/json"
 	"log"
 	"os"
@@ -12,7 +13,7 @@ import (
 func main() {
 	args := os.Args[1:]
 	if len(args) < 2 {
-		log.Println("invalid arguments. source path and output path are required")
+		log.Fatal("Invalid arguments. Source path and output path are required")
 		os.Exit(1)
 	}
 
@@ -21,24 +22,34 @@ func main() {
 
 	data, err := os.ReadFile(source)
 	if err != nil {
-		log.Println("Error reading the file:", err)
+		log.Fatal("Error reading the file:", err)
 		return
 	}
 
 	var conversations []models.Conversation
 	err = json.Unmarshal(data, &conversations)
 	if err != nil {
-		log.Println("Error unmarshalling JSON:", err)
+		log.Fatal("Error unmarshalling JSON:", err)
 		return
 	}
 
-	snippets := mapper.ToSnippets(conversations)
+	snippets := mapper.MapToSnippets(conversations)
 
 	log.Println("No. of snippets extracted:", len(snippets))
 
-	err = writer.ToCSV(output, snippets)
+	file, err := os.Create(output)
 	if err != nil {
-		log.Println("Error writing csv file:", err)
+		log.Fatal("Error creating output file:", err)
+		return
+	}
+	defer file.Close()
+
+	csvWriter := csv.NewWriter(file)
+	defer csvWriter.Flush()
+
+	err = writer.WriteToCSV(csvWriter, mapper.MapToCSVRow, snippets)
+	if err != nil {
+		log.Fatal("Error writing csv file:", err)
 		return
 	}
 
