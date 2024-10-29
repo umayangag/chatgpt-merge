@@ -5,9 +5,9 @@ import (
 	"encoding/csv"
 )
 
-type MapFunc func(s models.Snippet) []string
+type CSVMapper func(s models.Snippet) []string
 
-func WriteToCSV(writer *csv.Writer, mapToCSVRow MapFunc, snippets []models.Snippet) error {
+func WriteToCSV(writer *csv.Writer, mapToCSVRow CSVMapper, snippets []models.Snippet) error {
 	header := []string{"Timestamp", "Role", "Content"}
 	if err := writer.Write(header); err != nil {
 		return err
