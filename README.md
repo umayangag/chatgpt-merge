@@ -14,7 +14,8 @@ go mod tidy
     `
     go run cmd/main.go -dry conversations.json titles.txt
     `
-3. Run the following command with specifying input and output files to merge the selected conversations
+4. Edit the 'titles.txt' file to only include the conversations you want to merge
+5. Run the following command with specifying input and output files to merge the selected conversations
 
     `
     go run cmd/main.go -include=titles.txt conversations.json output.csv

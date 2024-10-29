@@ -44,12 +44,12 @@ func main() {
 	}
 
 	if *isDryRun {
-		err = listConversations(conversations, output)
+		err = dumpConversationList(conversations, output)
 		if err != nil {
 			log.Fatal("Error writing output file:", err)
 			os.Exit(1)
 		}
-		log.Println("Conversation List successfully extracted to:", output)
+		log.Println("Conversation List successfully written to:", output)
 		os.Exit(0)
 	}
 
@@ -88,7 +88,7 @@ func main() {
 	log.Println("Data successfully extracted to:", output)
 }
 
-func listConversations(conversations []models.Conversation, output string) error {
+func dumpConversationList(conversations []models.Conversation, output string) error {
 	file, err := os.Create(output)
 	if err != nil {
 		return err
