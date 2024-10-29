@@ -5,12 +5,21 @@ import (
 	"log"
 	"sort"
 	"strconv"
+
+	"golang.org/x/exp/slices"
 )
+
+var ignoreTitles = []string{}
 
 func MapToSnippets(conversations []models.Conversation) []models.Snippet {
 	snippets := []models.Snippet{}
 
 	for _, conversation := range conversations {
+		if slices.Contains(ignoreTitles, conversation.Title) {
+			log.Println("Ignoring Conversation:", conversation.Title)
+			continue
+		}
+
 		log.Println("Scanning Conversation:", conversation.Title)
 
 		for _, mapping := range conversation.Mapping {
