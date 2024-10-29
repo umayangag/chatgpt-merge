@@ -16,7 +16,7 @@ func TestWriteToCSV(t *testing.T) {
 	testCases := []struct {
 		name        string
 		snippets    []models.Snippet
-		mapToCSVRow writer.MapFunc
+		mapToCSVRow writer.CSVMapper
 		expectedCSV string
 	}{
 		{
