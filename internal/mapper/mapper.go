@@ -9,14 +9,12 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var ignoreTitles = []string{}
-
-func MapToSnippets(conversations []models.Conversation) []models.Snippet {
+func MapToSnippets(conversations []models.Conversation, includeTitles []string) []models.Snippet {
 	snippets := []models.Snippet{}
 
 	for _, conversation := range conversations {
-		if slices.Contains(ignoreTitles, conversation.Title) {
-			log.Println("Ignoring Conversation:", conversation.Title)
+		// ignore conversations that are not selected
+		if !slices.Contains(includeTitles, conversation.Title) {
 			continue
 		}
 

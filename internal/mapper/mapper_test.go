@@ -156,7 +156,7 @@ func TestMapToSnippets(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := mapper.MapToSnippets(tc.input)
+			actual := mapper.MapToSnippets(tc.input, []string{})
 			assert.Equal(t, tc.expected, actual)
 		})
 	}

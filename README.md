@@ -10,9 +10,12 @@ go mod tidy
 ## How to Use
 1. Export the conversations from ChatGPT
 2. Extract the files and get the path for conversations.json file
-3. Run the following command with specifying input and output files
+3. Run the following command with specifying input and output files to get the list of conversations
+    `
+    go run cmd/main.go -dry conversations.json titles.txt
+    `
+3. Run the following command with specifying input and output files to merge the selected conversations
 
-Example:
-`
-go run cmd/main.go input/conversations.json output/output.csv
-`
+    `
+    go run cmd/main.go -include=titles.txt conversations.json output.csv
+    `
