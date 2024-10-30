@@ -9,7 +9,7 @@
 
 ## How to Use
 1. Export the conversations from ChatGPT
-2. Extract the files and get the path for conversations.json file
+2. Extract the files and get the path for `conversations.json` file
 3. Run the following command with specifying input and output files to get the list of conversations
 
     `

@@ -13,6 +13,7 @@ func TestMapToSnippets(t *testing.T) {
 	testCases := []struct {
 		name     string
 		input    []models.Conversation
+		titles   []string
 		expected []models.Snippet
 	}{
 		{
@@ -38,6 +39,7 @@ func TestMapToSnippets(t *testing.T) {
 					},
 				},
 			},
+			titles: []string{"Conversation 1"},
 			expected: []models.Snippet{
 				{CreateTime: 1634000000, Role: "user", Content: "Hello!"},
 				{CreateTime: 1634000100, Role: "assistant", Content: "Hi there!"},
@@ -59,6 +61,7 @@ func TestMapToSnippets(t *testing.T) {
 					},
 				},
 			},
+			titles:   []string{"Conversation 2"},
 			expected: []models.Snippet{},
 		},
 		{
@@ -77,6 +80,7 @@ func TestMapToSnippets(t *testing.T) {
 					},
 				},
 			},
+			titles:   []string{"Conversation 2"},
 			expected: []models.Snippet{},
 		},
 		{
@@ -102,6 +106,7 @@ func TestMapToSnippets(t *testing.T) {
 					},
 				},
 			},
+			titles: []string{"Conversation 3"},
 			expected: []models.Snippet{
 				{CreateTime: 1634000200, Role: "assistant", Content: "Valid timestamp"},
 			},
@@ -122,6 +127,7 @@ func TestMapToSnippets(t *testing.T) {
 					},
 				},
 			},
+			titles:   []string{"Conversation 3"},
 			expected: []models.Snippet{},
 		},
 		{
@@ -147,16 +153,43 @@ func TestMapToSnippets(t *testing.T) {
 					},
 				},
 			},
+			titles: []string{"Conversation 4"},
 			expected: []models.Snippet{
 				{CreateTime: 1634000000, Role: "assistant", Content: "First"},
 				{CreateTime: 1634000100, Role: "user", Content: "Second"},
 			},
 		},
+		{
+			name: "ignore conversation",
+			input: []models.Conversation{
+				{
+					Title: "Conversation 4",
+					Mapping: map[string]models.Mapping{
+						"key1": {
+							Message: models.Message{
+								CreateTime: 1634000100,
+								Author:     models.Author{Role: "user"},
+								Content:    models.Content{Parts: []interface{}{"Second"}},
+							},
+						},
+						"key2": {
+							Message: models.Message{
+								CreateTime: 1634000000,
+								Author:     models.Author{Role: "assistant"},
+								Content:    models.Content{Parts: []interface{}{"First"}},
+							},
+						},
+					},
+				},
+			},
+			titles:   []string{},
+			expected: []models.Snippet{},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := mapper.MapToSnippets(tc.input, []string{})
+			actual := mapper.MapToSnippets(tc.input, tc.titles)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}

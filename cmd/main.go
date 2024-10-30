@@ -43,7 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *isDryRun {
+	if *isDryRun { // Output the list of conversations
 		err = dumpConversationList(conversations, output)
 		if err != nil {
 			log.Fatal("Error writing output file:", err)
@@ -53,6 +53,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Merge conversations
 	if includeFrom == nil || *includeFrom == "" {
 		log.Fatal("path to list of conversations is required. use flag -include or use -dry to output the list of conversations")
 		os.Exit(1)
