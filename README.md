@@ -4,7 +4,7 @@
 2. Download the source code and run the following commands in the project directory
 
     `
-    go mod tidy
+    go mod tidy &&
     go build -o chatgpt-merge cmd/main.go
     `
 
