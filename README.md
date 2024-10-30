@@ -1,10 +1,11 @@
 
 ## Installation
 1. Install golang [https://go.dev/doc/install]
-2. Download the source code and run the following command in the project directory
+2. Download the source code and run the following commands in the project directory
 
     `
-    go mod tidy 
+    go mod tidy
+    go build -o chatgpt-merge cmd/main.go
     `
 
 ## How to Use
@@ -13,11 +14,11 @@
 3. Run the following command with specifying input and output files to get the list of conversations
 
     `
-    go run cmd/main.go -dry conversations.json titles.txt
+    ./chatgpt-merge -dry conversations.json titles.txt
     `
 4. Edit the `titles.txt` file to only include the conversations you want to merge
 5. Run the following command with specifying input and output files to merge the selected conversations
 
     `
-    go run cmd/main.go -include=titles.txt conversations.json output.csv
+    ./chatgpt-merge -include=titles.txt conversations.json output.csv
     `
