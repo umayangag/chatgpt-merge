@@ -74,7 +74,7 @@ To merge selected conversations:
 
 1. **Export Conversations**: Export your ChatGPT conversations into a `conversations.json` file.
 2. **Dry Run (Optional)**: Run the tool in dry run mode to obtain a list of conversation titles.
-3. **Select Conversations**: Create a text file (`selected_titles.txt`) listing the titles of conversations you want to merge. Remove the titles of conversations you do not want to merge
+3. **Select Conversations**: Create a text file (`selected_titles.txt`) listing the titles of conversations you want to merge. Remove the titles of conversations you do not want to merge.
 4. **Merge Conversations**: Run the tool in merge mode to generate a CSV file containing the selected conversations.
 
 ## CSV Output Format
@@ -107,7 +107,7 @@ Contributions are welcome! To contribute:
 
 ## License
 
-This project is licensed under the Apache-2.0 License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache-2.0 License. See the [LICENSE](https://github.com/umayangag/chatgpt-merge?tab=Apache-2.0-1-ov-file) file for details.
 
 ## Acknowledgments
 

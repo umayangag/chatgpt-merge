@@ -5,6 +5,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"time"
 
 	"golang.org/x/exp/slices"
 )
@@ -39,6 +40,7 @@ func MapToSnippets(conversations []models.Conversation, includeTitles []string) 
 
 			snippets = append(snippets, models.Snippet{
 				CreateTime: msg.CreateTime,
+				TimeString: time.Unix(int64(msg.CreateTime), 0).String(),
 				Content:    context,
 				Role:       msg.Author.Role,
 			})
