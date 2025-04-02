@@ -4,7 +4,6 @@ import (
 	"chatgpt-merge/internal/models"
 	"log"
 	"sort"
-	"strconv"
 	"time"
 
 	"golang.org/x/exp/slices"
@@ -39,8 +38,7 @@ func MapToSnippets(conversations []models.Conversation, includeTitles []string) 
 			}
 
 			snippets = append(snippets, models.Snippet{
-				CreateTime: msg.CreateTime,
-				TimeString: time.Unix(int64(msg.CreateTime), 0).String(),
+				CreateTime: time.Unix(int64(msg.CreateTime), 0).String(),
 				Content:    context,
 				Role:       msg.Author.Role,
 			})
@@ -55,7 +53,6 @@ func MapToSnippets(conversations []models.Conversation, includeTitles []string) 
 }
 
 func MapToCSVRow(snippet models.Snippet) []string {
-	createTimeStr := strconv.FormatFloat(snippet.CreateTime, 'f', -1, 64)
 
-	return []string{createTimeStr, snippet.Role, snippet.Content}
+	return []string{snippet.CreateTime, snippet.Role, snippet.Content}
 }
