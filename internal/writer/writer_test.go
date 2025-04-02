@@ -4,9 +4,9 @@ import (
 	"chatgpt-merge/internal/models"
 	"chatgpt-merge/internal/writer"
 	"encoding/csv"
-	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -22,11 +22,11 @@ func TestWriteToCSV(t *testing.T) {
 		{
 			name: "successful write",
 			snippets: []models.Snippet{
-				{CreateTime: 1634000000, Role: "user", Content: "Hello there!"},
-				{CreateTime: 1634000100, Role: "assistant", Content: "How can I assist?"},
+				{CreateTime: convertTime(1634000000), Role: "user", Content: "Hello there!"},
+				{CreateTime: convertTime(1634000100), Role: "assistant", Content: "How can I assist?"},
 			},
 			mapToCSVRow: func(s models.Snippet) []string {
-				return []string{strconv.FormatFloat(s.CreateTime, 'f', -1, 64), s.Role, s.Content}
+				return []string{s.CreateTime, s.Role, s.Content}
 			},
 			expectedCSV: "Timestamp,Role,Content\n1634000000,user,Hello there!\n1634000100,assistant,How can I assist?\n",
 		},
@@ -34,7 +34,7 @@ func TestWriteToCSV(t *testing.T) {
 			name:     "empty snippets list",
 			snippets: []models.Snippet{},
 			mapToCSVRow: func(s models.Snippet) []string {
-				return []string{strconv.FormatFloat(s.CreateTime, 'f', -1, 64), s.Role, s.Content}
+				return []string{s.CreateTime, s.Role, s.Content}
 			},
 			expectedCSV: "Timestamp,Role,Content\n", // only header row
 		},
@@ -53,4 +53,8 @@ func TestWriteToCSV(t *testing.T) {
 
 		})
 	}
+}
+
+func convertTime(timeUnix float64) string {
+	return time.Unix(int64(timeUnix), 0).String()
 }

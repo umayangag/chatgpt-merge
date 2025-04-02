@@ -4,6 +4,7 @@ import (
 	"chatgpt-merge/internal/mapper"
 	"chatgpt-merge/internal/models"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -41,8 +42,8 @@ func TestMapToSnippets(t *testing.T) {
 			},
 			titles: []string{"Conversation 1"},
 			expected: []models.Snippet{
-				{CreateTime: 1634000000, Role: "user", Content: "Hello!"},
-				{CreateTime: 1634000100, Role: "assistant", Content: "Hi there!"},
+				{CreateTime: convertTime(1634000000), Role: "user", Content: "Hello!"},
+				{CreateTime: convertTime(1634000100), Role: "assistant", Content: "Hi there!"},
 			},
 		},
 		{
@@ -108,7 +109,7 @@ func TestMapToSnippets(t *testing.T) {
 			},
 			titles: []string{"Conversation 3"},
 			expected: []models.Snippet{
-				{CreateTime: 1634000200, Role: "assistant", Content: "Valid timestamp"},
+				{CreateTime: convertTime(1634000200), Role: "assistant", Content: "Valid timestamp"},
 			},
 		},
 		{
@@ -155,8 +156,8 @@ func TestMapToSnippets(t *testing.T) {
 			},
 			titles: []string{"Conversation 4"},
 			expected: []models.Snippet{
-				{CreateTime: 1634000000, Role: "assistant", Content: "First"},
-				{CreateTime: 1634000100, Role: "user", Content: "Second"},
+				{CreateTime: convertTime(1634000000), Role: "assistant", Content: "First"},
+				{CreateTime: convertTime(1634000100), Role: "user", Content: "Second"},
 			},
 		},
 		{
@@ -204,7 +205,7 @@ func TestMapToCSVRow(t *testing.T) {
 		{
 			name: "valid input",
 			input: models.Snippet{
-				CreateTime: 1634000000,
+				CreateTime: convertTime(1634000000),
 				Role:       "user",
 				Content:    "Hello there!",
 			},
@@ -213,7 +214,7 @@ func TestMapToCSVRow(t *testing.T) {
 		{
 			name: "empty role and content",
 			input: models.Snippet{
-				CreateTime: 1634000100,
+				CreateTime: convertTime(1634000100),
 				Role:       "",
 				Content:    "",
 			},
@@ -222,7 +223,7 @@ func TestMapToCSVRow(t *testing.T) {
 		{
 			name: "negative timestamp",
 			input: models.Snippet{
-				CreateTime: -12345.678,
+				CreateTime: convertTime(-12345.678),
 				Role:       "assistant",
 				Content:    "Negative timestamp",
 			},
@@ -236,4 +237,8 @@ func TestMapToCSVRow(t *testing.T) {
 			assert.Equal(t, tc.expectedRow, row)
 		})
 	}
+}
+
+func convertTime(timeUnix float64) string {
+	return time.Unix(int64(timeUnix), 0).String()
 }
