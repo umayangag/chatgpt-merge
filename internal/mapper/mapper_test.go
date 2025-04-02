@@ -209,7 +209,7 @@ func TestMapToCSVRow(t *testing.T) {
 				Role:       "user",
 				Content:    "Hello there!",
 			},
-			expectedRow: []string{"1634000000", "user", "Hello there!"},
+			expectedRow: []string{"2021-10-12 00:53:20 +0000 UTC", "user", "Hello there!"},
 		},
 		{
 			name: "empty role and content",
@@ -218,7 +218,7 @@ func TestMapToCSVRow(t *testing.T) {
 				Role:       "",
 				Content:    "",
 			},
-			expectedRow: []string{"1634000100", "", ""},
+			expectedRow: []string{"2021-10-12 00:55:00 +0000 UTC", "", ""},
 		},
 		{
 			name: "negative timestamp",
@@ -227,7 +227,7 @@ func TestMapToCSVRow(t *testing.T) {
 				Role:       "assistant",
 				Content:    "Negative timestamp",
 			},
-			expectedRow: []string{"-12345.678", "assistant", "Negative timestamp"},
+			expectedRow: []string{"1969-12-31 20:34:15 +0000 UTC", "assistant", "Negative timestamp"},
 		},
 	}
 
@@ -240,5 +240,5 @@ func TestMapToCSVRow(t *testing.T) {
 }
 
 func convertTime(timeUnix float64) string {
-	return time.Unix(int64(timeUnix), 0).String()
+	return time.Unix(int64(timeUnix), 0).UTC().String()
 }

@@ -38,7 +38,7 @@ func MapToSnippets(conversations []models.Conversation, includeTitles []string) 
 			}
 
 			snippets = append(snippets, models.Snippet{
-				CreateTime: time.Unix(int64(msg.CreateTime), 0).String(),
+				CreateTime: time.Unix(int64(msg.CreateTime), 0).UTC().String(),
 				Content:    context,
 				Role:       msg.Author.Role,
 			})

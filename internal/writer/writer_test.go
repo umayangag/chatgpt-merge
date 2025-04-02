@@ -28,7 +28,7 @@ func TestWriteToCSV(t *testing.T) {
 			mapToCSVRow: func(s models.Snippet) []string {
 				return []string{s.CreateTime, s.Role, s.Content}
 			},
-			expectedCSV: "Timestamp,Role,Content\n1634000000,user,Hello there!\n1634000100,assistant,How can I assist?\n",
+			expectedCSV: "Timestamp,Role,Content\n2021-10-12 00:53:20 +0000 UTC,user,Hello there!\n2021-10-12 00:55:00 +0000 UTC,assistant,How can I assist?\n",
 		},
 		{
 			name:     "empty snippets list",
@@ -56,5 +56,5 @@ func TestWriteToCSV(t *testing.T) {
 }
 
 func convertTime(timeUnix float64) string {
-	return time.Unix(int64(timeUnix), 0).String()
+	return time.Unix(int64(timeUnix), 0).UTC().String()
 }
