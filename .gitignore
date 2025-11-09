@@ -3,3 +3,5 @@ input/*
 output/*
 chatgpt-merge
 profile.cov
+
+.idea
