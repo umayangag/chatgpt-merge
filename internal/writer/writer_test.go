@@ -81,5 +81,5 @@ func TestWriteToCSV_WithBOM(t *testing.T) {
 }
 
 func convertTime(timeUnix float64) string {
-	return time.Unix(int64(timeUnix), 0).UTC().String()
+	return time.Unix(int64(timeUnix), 0).UTC().Format(time.RFC3339)
 }
