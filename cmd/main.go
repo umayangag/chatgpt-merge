@@ -114,26 +114,24 @@ func dumpConversationList(conversations []models.Conversation, output string, st
 		return err
 	}
 
-	buf := bufio.NewWriter(file)
-	for _, conversation := range conversations {
-		if _, err := buf.WriteString(conversation.Title + "\n"); err != nil {
-			_ = file.Close() // best-effort
-			return err
+	writeErr := func() error {
+		buf := bufio.NewWriter(file)
+		for _, conversation := range conversations {
+			if _, err := buf.WriteString(conversation.Title + "\n"); err != nil {
+				return err
+			}
+			// mirror to stdout as well
+			if _, err := fmt.Fprintln(stdout, conversation.Title); err != nil {
+				return err
+			}
 		}
-		// mirror to stdout as well
-		if _, err := fmt.Fprintln(stdout, conversation.Title); err != nil {
-			// attempt to flush and close what we have before returning
-			_ = buf.Flush()
-			_ = file.Close()
-			return err
-		}
+		return buf.Flush()
+	}()
+
+	closeErr := file.Close()
+
+	if writeErr != nil {
+		return writeErr
 	}
-	if err := buf.Flush(); err != nil {
-		_ = file.Close()
-		return err
-	}
-	if err := file.Close(); err != nil {
-		return err
-	}
-	return nil
+	return closeErr
 }
