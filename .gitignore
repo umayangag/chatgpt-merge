@@ -3,3 +3,20 @@ input/*
 output/*
 chatgpt-merge
 profile.cov
+
+# IDE/editor
+.idea
+
+# Build artifacts
+bin/
+dist/
+
+# Coverage & test output
+coverage/
+*.out
+
+# macOS
+.DS_Store
+
+# Local plans
+.junie_plans

@@ -1,115 +1,92 @@
-
 # ChatGPT-Merge
 
-ChatGPT-Merge is a command-line tool developed in Go that enables users to merge multiple ChatGPT conversation histories into a single, cohesive CSV file. This facilitates better context management, sharing, and analysis of ChatGPT interactions.
+ChatGPT-Merge is a small Go CLI that converts exported ChatGPT conversations (JSON) into a clean CSV for analysis or sharing. It supports a dry-run mode to list conversation titles and selective merging using an include list.
 
-## Features
+## Quick Start
 
-- **Merge Conversations**: Combine selected ChatGPT conversations into a unified CSV file.
-- **Selective Inclusion**: Specify which conversations to include in the merge process.
-- **Dry Run Mode**: Preview the list of conversations without performing the merge.
+Prerequisites: Go 1.25+
 
-## Prerequisites
+```bash
+# Clone and build
+git clone https://github.com/umayangag/chatgpt-merge.git
+cd chatgpt-merge
+make build   # or: go build -o chatgpt-merge ./cmd
 
-- **Go**: Ensure Go is installed on your system. You can download it from the [official Go website](https://go.dev/doc/install).
-
-## Installation
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone https://github.com/umayangag/chatgpt-merge.git
-   ```
-
-2. **Navigate to the Project Directory**:
-
-   ```bash
-   cd chatgpt-merge
-   ```
-
-3. **Build the Executable**:
-
-   ```bash
-   go mod tidy && go build -o chatgpt-merge cmd/main.go
-   ```
-
-   This command installs necessary dependencies and compiles the source code into an executable named `chatgpt-merge`.
+# Show version
+./chatgpt-merge -version
+```
 
 ## Usage
 
-The tool offers two primary modes:
+The CLI has two primary modes:
 
-1. **Dry Run Mode**: Outputs a list of available conversations without merging.
-2. **Merge Mode**: Merges selected conversations into a CSV file.
+- Dry-run: outputs the list of conversation titles (no CSV is created)
+- Merge: creates a CSV for selected conversations
 
-### Dry Run Mode
+Flags:
+- `-dry`         Print conversation titles to the given output file (and stdout) without merging
+- `-include`     Path to a text file containing the conversation titles to include (one per line)
+- `-version`     Print the tool version and exit
+- `-no-header`   Omit the CSV header row (default: header included)
+- `-bom`         Write a UTF-8 BOM at the start of the CSV (useful for Excel)
 
-To preview and save the list of conversations:
+Positional arguments:
+- `<source.json>` Path to exported ChatGPT conversations JSON
+- `<output>`      Path to output file (titles list in dry-run, CSV in merge)
 
-```bash
-./chatgpt-merge -dry path/to/conversations.json selected_titles.txt
-```
+### Examples
 
-- **Arguments**:
-  - `-dry`: Activates dry run mode.
-  - `path/to/conversations.json`: Path to the JSON file containing exported ChatGPT conversations.
-  - `selected_titles.txt`: File where the list of conversation titles will be saved.
-
-### Merge Mode
-
-To merge selected conversations:
+Dry-run (list titles to a file and stdout):
 
 ```bash
-./chatgpt-merge -include=selected_titles.txt path/to/conversations.json output.csv
+./chatgpt-merge -dry input/conversations.json output/titles.txt
 ```
 
-- **Arguments**:
-  - `-include=selected_titles.txt`: Path to a text file containing titles of conversations to include in the merge.
-  - `path/to/conversations.json`: Path to the JSON file containing exported ChatGPT conversations.
-  - `output.csv`: Destination file for the merged CSV data.
+Merge selected conversations (using titles from a file):
 
-**Note**: The `selected_titles.txt` file should list conversation titles, each on a new line, corresponding to the conversations you wish to merge.
+```bash
+./chatgpt-merge -include input/include.txt input/conversations.json output/output.csv
+```
 
-## Workflow
+Notes:
+- The include file is line-based; empty/whitespace-only lines are ignored.
+- Titles are matched exactly after trimming.
 
-1. **Export Conversations**: Export your ChatGPT conversations into a `conversations.json` file.
-2. **Dry Run (Optional)**: Run the tool in dry run mode to obtain a list of conversation titles.
-3. **Select Conversations**: Create a text file (`selected_titles.txt`) listing the titles of conversations you want to merge. Remove the titles of conversations you do not want to merge.
-4. **Merge Conversations**: Run the tool in merge mode to generate a CSV file containing the selected conversations.
+## CSV Semantics
 
-## CSV Output Format
+- Columns: `Timestamp`, `Role`, `Content`
+- Timestamp format: RFC3339 in UTC (e.g., `2021-10-12T00:53:20Z`)
+- Ordering: rows are sorted chronologically by timestamp
+- Defaults: header row is included; UTF‑8 BOM is not written
 
-The resulting CSV file will have the following columns:
+In a later phase we may expose flags for writer options (`-no-header`, `-bom`). Defaults today are header on, BOM off.
 
-1. **Timestamp**: Unix timestamp of the message.
-2. **Role**: Role of the message author (`assistant` or `user`).
-3. **Content**: Text content of the message.
+## Development
 
-## Extending the Tool
+Common tasks are available via Makefile:
 
-Developers can extend the tool by:
+```bash
+make fmt   # gofmt -s -w .
+make lint  # go vet ./...
+make test  # go test ./...
+make build # go build -o chatgpt-merge ./cmd
+make cover # coverage summary
+```
 
-- **Adding Filters**: Implement additional filtering criteria (e.g., by date range or keyword).
-- **Supporting Other Formats**: Enable output in formats like JSON or XML.
-- **Enhancing User Interface**: Develop a graphical user interface (GUI) for improved usability.
-- **File Split Capabilities**: Split the output CSV file into multiple files if the size exceeds the upload filesize limits.
+Verification:
+```bash
+./chatgpt-merge -version
+./chatgpt-merge -dry input/conversations.json output/titles.txt
+```
 
 ## Contributing
 
-Contributions are welcome! To contribute:
-
-1. **Fork the Repository**: Click the "Fork" button at the top right of the repository page.
-2. **Create a New Branch**: Use `git checkout -b feature-branch-name`.
-3. **Make Changes**: Implement your feature or fix.
-4. **Commit Changes**: Use `git commit -m "Description of changes"`.
-5. **Push to Branch**: Use `git push origin feature-branch-name`.
-6. **Create a Pull Request**: Navigate to your forked repository and click the "New Pull Request" button.
+- Create a feature branch (do not commit to main): `git checkout -b feat/your-change`
+- Use Conventional Commits (e.g., `feat:`, `fix:`, `docs:`)
+- Add/adjust tests where applicable
+- Open a focused pull request
 
 ## License
 
-This project is licensed under the Apache-2.0 License. See the [LICENSE](https://github.com/umayangag/chatgpt-merge?tab=Apache-2.0-1-ov-file) file for details.
-
-## Acknowledgments
-
-Special thanks to the contributors and the open-source community for their support and feedback.
+Apache-2.0. See `LICENSE`.
 

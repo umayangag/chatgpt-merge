@@ -2,110 +2,148 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
+	"errors"
+	"flag"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+
 	"chatgpt-merge/internal/mapper"
 	"chatgpt-merge/internal/models"
 	"chatgpt-merge/internal/writer"
-	"encoding/csv"
-	"encoding/json"
-	"flag"
-	"fmt"
-	"log"
-	"os"
-	"strings"
 )
 
-func main() {
-	// Parse Arguments
-	includeFrom := flag.String("include", "", "filepath to list of conversation files to be selected for merging")
-	isDryRun := flag.Bool("dry", false, "output the list conversations without merging")
-	flag.Parse()
+const version = "v0.1.0"
 
-	args := flag.Args()
-	if len(args) < 2 {
-		log.Fatal("Invalid arguments. Source path and output path are required")
+func main() {
+	if err := run(os.Args[1:], os.Stdout, os.Stderr); err != nil {
+		// Print error to stderr and exit with non-zero
+		_, _ = fmt.Fprintln(os.Stderr, err) // best effort
 		os.Exit(1)
 	}
+}
 
+// run executes the CLI with provided args and I/O writers.
+func run(argv []string, stdout, stderr io.Writer) error {
+	fs := flag.NewFlagSet("chatgpt-merge", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	includeFrom := fs.String(
+		"include",
+		"",
+		"file path to list of conversation titles to include when merging (one per line)",
+	)
+	isDryRun := fs.Bool("dry", false, "output the list of conversation titles without merging")
+	showVersion := fs.Bool("version", false, "print version and exit")
+	noHeader := fs.Bool("no-header", false, "omit the CSV header row")
+	writeBOM := fs.Bool("bom", false, "write UTF-8 BOM at the start of the CSV (for Excel compatibility)")
+
+	if err := fs.Parse(argv); err != nil {
+		return err
+	}
+
+	if *showVersion {
+		if _, err := fmt.Fprintf(stdout, "chatgpt-merge %s\n", version); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	args := fs.Args()
+	// Validate common args
+	if len(args) < 2 {
+		return errors.New(
+			"invalid arguments: source path and output path are required. Usage: [-dry | -include <file>] <source.json> <output>",
+		)
+	}
 	source := args[0]
 	output := args[1]
 
 	// Read Source File
 	data, err := os.ReadFile(source)
 	if err != nil {
-		log.Fatal("Error reading the source file:", err)
-		os.Exit(1)
+		return fmt.Errorf("error reading source file: %w", err)
 	}
 
 	var conversations []models.Conversation
-	err = json.Unmarshal(data, &conversations)
-	if err != nil {
-		log.Fatal("Error unmarshalling JSON:", err)
-		os.Exit(1)
+	if err := json.Unmarshal(data, &conversations); err != nil {
+		return fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
 
 	if *isDryRun { // Output the list of conversations
-		err = dumpConversationList(conversations, output)
-		if err != nil {
-			log.Fatal("Error writing output file:", err)
-			os.Exit(1)
+		if err := dumpConversationList(conversations, output, stdout); err != nil {
+			return fmt.Errorf("error writing output file: %w", err)
 		}
-		log.Println("Conversation List successfully written to:", output)
-		os.Exit(0)
+		if _, err := fmt.Fprintln(stdout, "Conversation list successfully written to:", output); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	// Merge conversations
-	if includeFrom == nil || *includeFrom == "" {
-		log.Fatal("path to list of conversations is required. use flag -include or use -dry to output the list of conversations")
-		os.Exit(1)
+	if *includeFrom == "" {
+		return errors.New(
+			"path to list of conversations is required: use -include or use -dry to output the list of conversations",
+		)
 	}
 
 	titlesData, err := os.ReadFile(*includeFrom)
 	if err != nil {
-		log.Fatal("Error reading the file for selected conversations:", err)
-		os.Exit(1)
+		return fmt.Errorf("error reading include titles file: %w", err)
 	}
 
 	includeTitles := strings.Split(string(titlesData), "\n")
 	snippets := mapper.MapToSnippets(conversations, includeTitles)
 
-	log.Println("No. of snippets extracted:", len(snippets))
-
+	// Create output CSV
 	file, err := os.Create(output)
 	if err != nil {
-		log.Fatal("Error creating output file:", err)
-		os.Exit(1)
-	}
-	defer file.Close()
-
-	csvWriter := csv.NewWriter(file)
-	defer csvWriter.Flush()
-
-	err = writer.WriteToCSV(csvWriter, mapper.MapToCSVRow, snippets)
-	if err != nil {
-		log.Fatal("Error writing csv file:", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating output file: %w", err)
 	}
 
-	log.Println("Data successfully extracted to:", output)
+	// Write CSV with options from flags (defaults: header on, BOM off)
+	opts := writer.Options{IncludeHeader: !*noHeader, WriteBOM: *writeBOM}
+	writeErr := writer.WriteToCSV(file, mapper.MapToCSVRow, snippets, opts)
+	closeErr := file.Close()
+
+	if writeErr != nil {
+		return fmt.Errorf("error writing csv file: %w", writeErr)
+	}
+	if closeErr != nil {
+		return fmt.Errorf("error closing output file: %w", closeErr)
+	}
+
+	if _, err := fmt.Fprintln(stdout, "Data successfully extracted to:", output); err != nil {
+		return err
+	}
+	return nil
 }
 
-func dumpConversationList(conversations []models.Conversation, output string) error {
+func dumpConversationList(conversations []models.Conversation, output string, stdout io.Writer) error {
 	file, err := os.Create(output)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
-	// Create a buffered writer
-	writer := bufio.NewWriter(file)
-
-	log.Println("Following Conversations were detected:")
-	for _, conversation := range conversations {
-		_, err := writer.WriteString(conversation.Title + "\n")
-		if err != nil {
-			return err
+	writeErr := func() error {
+		buf := bufio.NewWriter(file)
+		for _, conversation := range conversations {
+			if _, err := buf.WriteString(conversation.Title + "\n"); err != nil {
+				return err
+			}
+			// mirror to stdout as well
+			if _, err := fmt.Fprintln(stdout, conversation.Title); err != nil {
+				return err
+			}
 		}
-		fmt.Println(conversation.Title)
+		return buf.Flush()
+	}()
+
+	closeErr := file.Close()
+
+	if writeErr != nil {
+		return writeErr
 	}
-	return writer.Flush()
+	return closeErr
 }

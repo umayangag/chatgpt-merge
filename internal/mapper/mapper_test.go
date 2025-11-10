@@ -1,10 +1,11 @@
 package mapper_test
 
 import (
-	"chatgpt-merge/internal/mapper"
-	"chatgpt-merge/internal/models"
 	"testing"
 	"time"
+
+	"chatgpt-merge/internal/mapper"
+	"chatgpt-merge/internal/models"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -122,7 +123,9 @@ func TestMapToSnippets(t *testing.T) {
 							Message: models.Message{
 								CreateTime: 1634000100, // zero timestamp
 								Author:     models.Author{Role: "user"},
-								Content:    models.Content{Parts: []interface{}{map[string]interface{}{"key_001": "metadata here"}}},
+								Content: models.Content{
+									Parts: []interface{}{map[string]interface{}{"key_001": "metadata here"}},
+								},
 							},
 						},
 					},
@@ -209,7 +212,7 @@ func TestMapToCSVRow(t *testing.T) {
 				Role:       "user",
 				Content:    "Hello there!",
 			},
-			expectedRow: []string{"2021-10-12 00:53:20 +0000 UTC", "user", "Hello there!"},
+			expectedRow: []string{"2021-10-12T00:53:20Z", "user", "Hello there!"},
 		},
 		{
 			name: "empty role and content",
@@ -218,7 +221,7 @@ func TestMapToCSVRow(t *testing.T) {
 				Role:       "",
 				Content:    "",
 			},
-			expectedRow: []string{"2021-10-12 00:55:00 +0000 UTC", "", ""},
+			expectedRow: []string{"2021-10-12T00:55:00Z", "", ""},
 		},
 		{
 			name: "negative timestamp",
@@ -227,7 +230,7 @@ func TestMapToCSVRow(t *testing.T) {
 				Role:       "assistant",
 				Content:    "Negative timestamp",
 			},
-			expectedRow: []string{"1969-12-31 20:34:15 +0000 UTC", "assistant", "Negative timestamp"},
+			expectedRow: []string{"1969-12-31T20:34:15Z", "assistant", "Negative timestamp"},
 		},
 	}
 
@@ -240,5 +243,5 @@ func TestMapToCSVRow(t *testing.T) {
 }
 
 func convertTime(timeUnix float64) string {
-	return time.Unix(int64(timeUnix), 0).UTC().String()
+	return time.Unix(int64(timeUnix), 0).UTC().Format(time.RFC3339)
 }
