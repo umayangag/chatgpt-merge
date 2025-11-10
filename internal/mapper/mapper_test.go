@@ -1,10 +1,11 @@
 package mapper_test
 
 import (
-	"chatgpt-merge/internal/mapper"
-	"chatgpt-merge/internal/models"
 	"testing"
 	"time"
+
+	"chatgpt-merge/internal/mapper"
+	"chatgpt-merge/internal/models"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -122,7 +123,9 @@ func TestMapToSnippets(t *testing.T) {
 							Message: models.Message{
 								CreateTime: 1634000100, // zero timestamp
 								Author:     models.Author{Role: "user"},
-								Content:    models.Content{Parts: []interface{}{map[string]interface{}{"key_001": "metadata here"}}},
+								Content: models.Content{
+									Parts: []interface{}{map[string]interface{}{"key_001": "metadata here"}},
+								},
 							},
 						},
 					},

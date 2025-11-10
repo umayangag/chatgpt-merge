@@ -41,7 +41,6 @@ func Test_DryRunOutputsTitlesToFile(t *testing.T) {
 	// Act: dry run should list titles
 	var stdout, stderr strings.Builder
 	err := run([]string{"-dry", source, output}, &stdout, &stderr)
-
 	// Assert
 	if err != nil {
 		t.Fatalf("run returned error: %v (stderr=%s)", err, stderr.String())
@@ -202,7 +201,8 @@ func Test_DryRun_MirrorStdoutWriteError(t *testing.T) {
 	werr := errors.New("stdout write failed")
 	stdout := errWriter{err: werr}
 	var stderr strings.Builder
-	if err := run([]string{"-dry", source, out}, stdout, &stderr); err == nil || !strings.Contains(err.Error(), werr.Error()) {
+	if err := run([]string{"-dry", source, out}, stdout, &stderr); err == nil ||
+		!strings.Contains(err.Error(), werr.Error()) {
 		t.Fatalf("expected stdout error to propagate in dry run, got: %v", err)
 	}
 }

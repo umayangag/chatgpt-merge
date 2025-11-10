@@ -2,10 +2,11 @@ package writer_test
 
 import (
 	"bytes"
-	"chatgpt-merge/internal/models"
-	"chatgpt-merge/internal/writer"
 	"testing"
 	"time"
+
+	"chatgpt-merge/internal/models"
+	"chatgpt-merge/internal/writer"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,7 +44,12 @@ func TestWriteToCSV_DefaultOptions(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			var buf bytes.Buffer
-			err := writer.WriteToCSV(&buf, tc.mapToCSVRow, tc.snippets, writer.Options{IncludeHeader: true, WriteBOM: false})
+			err := writer.WriteToCSV(
+				&buf,
+				tc.mapToCSVRow,
+				tc.snippets,
+				writer.Options{IncludeHeader: true, WriteBOM: false},
+			)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedCSV, buf.String())
 		})
@@ -81,5 +87,5 @@ func TestWriteToCSV_WithBOM(t *testing.T) {
 }
 
 func convertTime(timeUnix float64) string {
-	return time.Unix(int64(timeUnix), 0).UTC().Format(time.RFC3339)
+	return time.Unix(int64(timeUnix), 0).UTC().String()
 }

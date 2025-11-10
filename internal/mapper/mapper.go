@@ -1,10 +1,11 @@
 package mapper
 
 import (
-	"chatgpt-merge/internal/models"
 	"sort"
 	"strings"
 	"time"
+
+	"chatgpt-merge/internal/models"
 )
 
 func MapToSnippets(conversations []models.Conversation, includeTitles []string) []models.Snippet {

@@ -1,9 +1,10 @@
 package writer
 
 import (
-	"chatgpt-merge/internal/models"
 	"encoding/csv"
 	"io"
+
+	"chatgpt-merge/internal/models"
 )
 
 type CSVMapper func(s models.Snippet) []string

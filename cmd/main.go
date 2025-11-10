@@ -2,9 +2,6 @@ package main
 
 import (
 	"bufio"
-	"chatgpt-merge/internal/mapper"
-	"chatgpt-merge/internal/models"
-	"chatgpt-merge/internal/writer"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -12,6 +9,10 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"chatgpt-merge/internal/mapper"
+	"chatgpt-merge/internal/models"
+	"chatgpt-merge/internal/writer"
 )
 
 const version = "v0.1.0"
@@ -28,7 +29,11 @@ func main() {
 func run(argv []string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("chatgpt-merge", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	includeFrom := fs.String("include", "", "file path to list of conversation titles to include when merging (one per line)")
+	includeFrom := fs.String(
+		"include",
+		"",
+		"file path to list of conversation titles to include when merging (one per line)",
+	)
 	isDryRun := fs.Bool("dry", false, "output the list of conversation titles without merging")
 	showVersion := fs.Bool("version", false, "print version and exit")
 	noHeader := fs.Bool("no-header", false, "omit the CSV header row")
@@ -48,7 +53,9 @@ func run(argv []string, stdout, stderr io.Writer) error {
 	args := fs.Args()
 	// Validate common args
 	if len(args) < 2 {
-		return errors.New("invalid arguments: source path and output path are required. Usage: [-dry | -include <file>] <source.json> <output>")
+		return errors.New(
+			"invalid arguments: source path and output path are required. Usage: [-dry | -include <file>] <source.json> <output>",
+		)
 	}
 	source := args[0]
 	output := args[1]
@@ -76,7 +83,9 @@ func run(argv []string, stdout, stderr io.Writer) error {
 
 	// Merge conversations
 	if *includeFrom == "" {
-		return errors.New("path to list of conversations is required: use -include or use -dry to output the list of conversations")
+		return errors.New(
+			"path to list of conversations is required: use -include or use -dry to output the list of conversations",
+		)
 	}
 
 	titlesData, err := os.ReadFile(*includeFrom)
@@ -92,14 +101,17 @@ func run(argv []string, stdout, stderr io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("error creating output file: %w", err)
 	}
+
 	// Write CSV with options from flags (defaults: header on, BOM off)
 	opts := writer.Options{IncludeHeader: !*noHeader, WriteBOM: *writeBOM}
-	if err := writer.WriteToCSV(file, mapper.MapToCSVRow, snippets, opts); err != nil {
-		_ = file.Close() // best-effort close before returning error
-		return fmt.Errorf("error writing csv file: %w", err)
+	writeErr := writer.WriteToCSV(file, mapper.MapToCSVRow, snippets, opts)
+	closeErr := file.Close()
+
+	if writeErr != nil {
+		return fmt.Errorf("error writing csv file: %w", writeErr)
 	}
-	if err := file.Close(); err != nil {
-		return fmt.Errorf("error closing output file: %w", err)
+	if closeErr != nil {
+		return fmt.Errorf("error closing output file: %w", closeErr)
 	}
 
 	if _, err := fmt.Fprintln(stdout, "Data successfully extracted to:", output); err != nil {
