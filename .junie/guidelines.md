@@ -102,11 +102,12 @@
 
 ### 3. Testing Standards
 - Instead of writing fakes, write interfaces and use mockery to generate mocks for the interfaces using mockery tags.
-- Go 1.25+; use the standard `testing` package and table-driven tests by default.
-- Prefer `make test` if available; otherwise `go test ./...`.
-- Use `httptest` and interfaces for mocking; external libs (e.g., `testify`) only if already present.
-- test should not have if statements. use assert functions instead.
-- tests should be written in table-driven format and use the {packagename}_test.go naming.
+- For Go:
+  - Go 1.25+; use the standard `testing` package and table-driven tests by default.
+  - Prefer `make test` if available; otherwise `go test ./...`.
+  - Use `httptest` and interfaces for mocking; external libs (e.g., `testify`) only if already present.
+  - test should not have if statements. use assert functions instead.
+  - tests should be written in table-driven format and use the {packagename}_test.go naming.
 
 ### 4. Execution Environments
 - Prefer `Makefile` targets and `docker-compose.yml` for local dev and integration.
