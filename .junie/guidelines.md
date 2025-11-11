@@ -100,7 +100,7 @@
 - Use Conventional Commits (e.g., `feat:`, `fix:`, `docs:`, `refactor:`). Provide concise, meaningful messages.
 - Open a PR for review; keep PRs focused and small when possible.
 
-### 3.Testing Standards
+### 3. Testing Standards
 - Instead of writing fakes, write interfaces and use mockery to generate mocks for the interfaces using mockery tags.
 - Go 1.25+; use the standard `testing` package and table-driven tests by default.
 - Prefer `make test` if available; otherwise `go test ./...`.
